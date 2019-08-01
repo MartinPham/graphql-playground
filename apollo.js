@@ -36,7 +36,7 @@ const typeDefs = gql`
   type User {
     id: String
     name: String
-    tasks: [Task]
+    tasks(isCompleted: Boolean): [Task]
   }
 
   type Query {
@@ -49,11 +49,11 @@ const typeDefs = gql`
 const resolvers = {
   Query: {
     users: () => users,
-    tasks: (root, args, context, info) => tasks.filter(task => task.isCompleted === args.isCompleted),
+    tasks: (root, {isCompleted = null}, context, info) => tasks.filter(task => isCompleted === null || task.isCompleted === isCompleted),
     completedTasks: () => tasks.filter(task => task.isCompleted),
   },
   User: {
-    tasks: (root) => tasks.filter(task => task.userId === root.id),
+    tasks: (root, {isCompleted = null}) => tasks.filter(task => task.userId === root.id && (isCompleted === null || task.isCompleted === isCompleted)),
   }
 };
 
