@@ -117,7 +117,6 @@ const resolvers = {
         id: Math.random() + '',
         name: newUser.name
       });
-      console.log(users);
       return users;
     }
   }
