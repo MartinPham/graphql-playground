@@ -1,15 +1,28 @@
 const { ApolloServer, gql } = require('apollo-server');
 
+const users = [
+  {
+    id: '1',
+    name: 'u1'
+  },
+  {
+    id: '2',
+    name: 'u2'
+  },
+];
+
 const tasks = [
   {
     id: '1',
     name: 't1',
-    isCompleted: true
+    isCompleted: true,
+    userId: '1'
   },
   {
     id: '2',
     name: 't2',
-    isCompleted: false
+    isCompleted: false,
+    userId: '2'
   },
 ];
 
@@ -17,9 +30,17 @@ const typeDefs = gql`
   type Task {
     id: String
     name: String
+    isCompleted: Boolean
+  }
+
+  type User {
+    id: String
+    name: String
+    tasks: [Task]
   }
 
   type Query {
+    users: [User]
     tasks(isCompleted: Boolean): [Task]
     completedTasks: [Task]
   }
@@ -27,9 +48,13 @@ const typeDefs = gql`
 
 const resolvers = {
   Query: {
+    users: () => users,
     tasks: (root, args, context, info) => tasks.filter(task => task.isCompleted === args.isCompleted),
     completedTasks: () => tasks.filter(task => task.isCompleted),
   },
+  User: {
+    tasks: (root) => tasks.filter(task => task.userId === root.id),
+  }
 };
 
 // In the most basic sense, the ApolloServer can be started
