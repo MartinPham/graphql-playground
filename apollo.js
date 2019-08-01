@@ -51,11 +51,37 @@ const typeDefs = gql`
     users: [User]
     tasks(filter: TaskFilter): [Task]
   }
+
+
+  input NewUser {
+    name: String
+  }
+
+  type Mutation {
+    addUser(newUser: NewUser): [User]
+  }
 `;
 
 const resolvers = {
   Query: {
     users: () => users,
+    /**
+    query todo($onlyCompleted: Boolean, $onlyToday: Boolean = true) {
+      today: tasks(filter: { isImportant: true, isCompleted: $onlyCompleted }) {
+        ...taskFields
+      }
+      tomorrow: tasks(filter: { isImportant: false, isCompleted: $onlyCompleted }) @skip(if: $onlyToday) {
+        ...taskFields
+      }
+    }
+
+    fragment taskFields on Task {
+      id
+      name
+      isCompleted
+      isImportant
+    }
+     */
     tasks: (root, {filter = {}}, context, info) => tasks.filter(task => {
       let valid = true;
       if(typeof filter.isCompleted !== 'undefined' && filter.isCompleted !== task.isCompleted)
@@ -72,6 +98,28 @@ const resolvers = {
   },
   User: {
     tasks: (root, {isCompleted = null}) => tasks.filter(task => task.userId === root.id && (isCompleted === null || task.isCompleted === isCompleted)),
+  },
+
+
+  Mutation: {
+    /**
+    mutation createUser {
+      addUser(newUser: {
+        name: "ops112"
+      }) {
+        id
+        name
+      }
+    }
+     */
+    addUser: (root, {newUser}, context, info) => {
+      users.push({
+        id: Math.random() + '',
+        name: newUser.name
+      });
+      console.log(users);
+      return users;
+    }
   }
 };
 
