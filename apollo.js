@@ -3,11 +3,13 @@ const { ApolloServer, gql } = require('apollo-server');
 const users = [
   {
     id: '1',
-    name: 'u1'
+    name: 'u1',
+    password: '1'
   },
   {
     id: '2',
-    name: 'u2'
+    name: 'u2',
+    password: '2'
   },
 ];
 
@@ -125,7 +127,27 @@ const resolvers = {
 // In the most basic sense, the ApolloServer can be started
 // by passing type definitions (typeDefs) and the resolvers
 // responsible for fetching the data for those types.
-const server = new ApolloServer({ typeDefs, resolvers });
+const server = new ApolloServer({ 
+  typeDefs, 
+  resolvers,
+  context: ({req}) => {
+    const params = req.params;
+    const name = params.name;
+    const password = params.password;
+
+    for(let user in users)
+    {
+      if(user.name === name && user.password === password)
+      {
+        return {
+          user
+        }
+      }
+    }
+
+    return {}
+  }
+});
 
 // This `listen` method launches a web-server.  Existing apps
 // can utilize middleware options, which we'll discuss later.
